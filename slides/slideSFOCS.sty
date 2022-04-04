@@ -1,0 +1,337 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{slideSFOCS}[2020/07/10 SilverFOCS beamer theme]
+
+\RequirePackage{tikz}
+\usetikzlibrary{shapes,calc,mindmap,shadings,shadows,positioning,fit}
+
+\graphicspath{{img/}}
+
+\RequirePackage{multicol}
+\RequirePackage{booktabs,multirow}
+\setlength\multicolsep{.125cm}
+
+%colors
+\definecolor{silverfocsblue}{rgb}{0.13,0.28,0.53} %;slidefg,.1,.1,.1;titlebg,.1,.1,.1;structbg,1,.66,.1}
+\definecolor{silverfocsdarkblue}{rgb}{0.0,0.39,0.62} %;slidefg,.1,.1,.1;titlebg,.1,.1,.1;structbg,1,.66,.1}
+%\definecolorset{rgb}{mind}{color}{chap,.4,.4,.9;sec,1,.2,.2;cursec,.4,.7,.4}
+\newcommand{\colortheme}[1]{
+\colorlet{slidebgcolor}{#1!10}
+\colorlet{slidefgcolor}{#1!5!black}
+\colorlet{titlebgcolor}{silverfocsdarkblue!95}
+\colorlet{structbgcolor}{#1}
+\colorlet{secfgcolor}{structbgcolor!10}
+\colorlet{keyfgcolor}{slidefgcolor}
+\colorlet{tocbgcolor}{structbgcolor}
+\colorlet{tocfgcolor}{secfgcolor}
+\colorlet{titlefgcolor}{slidebgcolor}
+\colorlet{secbgcolor}{silverfocsdarkblue}   
+\colorlet{structfgcolor}{slidebgcolor!10}
+\colorlet{ucolor}{white!60!white}
+}     
+
+
+\colortheme{silverfocsblue}
+
+% sans math
+\RequirePackage{cmbright}
+\RequirePackage[cm]{sfmath}
+
+\usefonttheme{professionalfonts}
+
+\ifxetex
+\RequirePackage{fontspec}
+\setmainfont{CMU Sans Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont[Scale=.9]{CMU Typewriter Text}
+\fi
+
+% basic beamer init
+\setbeamertemplate{navigation symbols}{}
+\setbeamersize{text margin left=.675cm}
+\setbeamersize{text margin right=.675cm}
+
+%	\usebeamercolor{palette primary}
+
+\setbeamercolor*{palette primary}{fg=slidefgcolor,bg=slidebgcolor}
+
+\setbeamercolor*{palette tertiary}{fg=structfgcolor,bg=structbgcolor}
+\setbeamercolor*{palette secondary}{use=palette tertiary,fg=palette tertiary.bg}
+
+\setbeamercolor*{structure}{parent=palette tertiary}
+\setbeamercolor*{local structure}{parent=palette secondary}
+\setbeamercolor*{normal text}{parent=palette primary}
+\setbeamercolor*{itemize/enumerate body}{parent=palette primary}
+\setbeamercolor*{background canvas}{parent=palette primary}
+
+\setbeamercolor{author}{use=palette primary,fg=palette primary.fg}
+\setbeamercolor{date}{use=palette primary,fg=palette primary.fg}
+
+\setbeamertemplate{section in toc shaded}[default][70]
+\setbeamercolor{section in toc}{use=palette secondary,bg=palette secondary.bg}
+
+
+\useinnertheme{circles}
+
+
+\RequirePackage{xpatch}
+
+\xpatchcmd{\itemize}{\def\makelabel}{
+	\ifnum\@itemdepth=1\relax
+		\setlength\itemsep{.25cm}% separation for first level
+		\setlength\topsep{.125cm}% separation for first level
+	\else
+		\ifnum\@itemdepth=2\relax
+			\setlength\itemsep{.125cm}% separation for second level
+			\setlength\topsep{.125cm}% separation for first level
+		\else
+			\ifnum\@itemdepth=3\relax
+				\setlength\itemsep{0.5ex}% separation for third level
+			\fi
+		\fi
+	\fi
+	\def\makelabel
+}{}{}
+
+% enumerate based on list + without \newcommand (beamer/beamerbaselocalstructure.sty)
+\def\@llisti{\leftmargin\leftmargini
+	\topsep 3\p@ \@plus2\p@ \@minus2.5\p@
+	\parsep 0\p@
+	\itemsep.25cm \@plus2\p@ \@minus3\p@
+}
+\def\@llistii{\leftmargin\leftmarginii
+	\topsep 3\p@ \@plus2\p@ \@minus2.5\p@
+	\parsep 0\p@
+	\itemsep.125cm \@plus1\p@ \@minus2\p@
+}
+\let\@listI\@llisti 
+\let\@listii\@llistii 
+
+\newcommand*{\nosep}{\itemsep 1pt\vspace{-.125cm}}
+\newcommand*{\smallsep}{\itemsep .125cm}
+\newcommand*{\medsep}{\itemsep .25cm\smallskip}
+\newcommand*{\bigsep}{\itemsep .5cm\medskip}
+\newcommand*{\halfwidth}{.4725\textwidth}
+
+% hyperref
+\hypersetup{colorlinks=true, linkcolor=., urlcolor=ucolor}
+
+% top of frame
+\tikzset{
+	arc/.pic={
+			\pgfmathsetmacro{\sdone}{\insertframenumber/\inserttotalframenumber}
+			\pgfmathsetmacro{\sdone}{90-360*\sdone}
+			\draw[bg!80!fg,opacity=1,line width=1.2pt] (0,0) circle (.25cm);
+			\draw[bg!40!fg,opacity=1,line width=1pt] (0,.25) arc (90:\sdone:.25);
+			\node[font=\tiny] at (0,0) {\insertframenumber};
+	},
+}
+
+\defbeamertemplate*{frametitle}{ftitle}[1][1]{
+	\nointerlineskip
+	\begin{beamercolorbox}[wd=\paperwidth,ht=1.23cm]{frametitle}
+		\begin{tikzpicture}[remember picture,overlay]
+			\pic at ($(current page.north west)+(.675,-.675)$) {arc};
+			\node[anchor=east,align=right,font=\Large\vphantom{Ag},inner sep=0pt] at ($(current page.north east)+(-.675,-.675)$) {\insertframetitle\par};
+		\end{tikzpicture}
+	\end{beamercolorbox}
+}
+
+% alerted text
+\setbeamercolor{alerted text}{fg=structbgcolor}
+\setbeamerfont{alerted text}{series=\bf}
+
+% title
+\setbeamercolor*{palette primary}{fg=titlefgcolor,bg=titlebgcolor}
+%\newfontfamily\sfocsfont{Encapsulate BRK}
+
+\defbeamertemplate*{title page}{tpage}{
+	\tikzset{info/.style={text opacity=.9,align=center,text=fg,align=center}}
+	
+	\setbeamercolor*{palette primary}{fg=titlefgcolor,bg=titlebgcolor}
+	\usebeamercolor{palette primary}
+
+	\hypersetup{urlcolor=.}
+	\begin{tikzpicture}[overlay, remember picture]
+
+%		\node[font=\Large,info] (title) at ($(current page.center)+(0,-2.12)$) {\inserttitle};
+		
+
+		\node[inner sep=0pt] (logo)  at ($(current page.center)+(0,2.7)$) {\includegraphics[height=.25\textheight,width=.75\textwidth,keepaspectratio]{sf-logo.pdf}}; 
+
+		\node[font=\huge] at ($(current page.center)-(0,-1)$) {Presents};
+
+%		\fill[fill=bg!92] ($(current page.west)+(0,-.785)$) rectangle ($(current page.east)+(0,-2.325)$);
+		\node[font=\Huge,info,fill=structbgcolor,minimum width=\paperwidth, minimum height=1.8cm] (title) at ($(current page.center)+(0,-2)$) {\inserttitle};
+		\node[info] (authorsemester) at ($(current page.center)+(0,-3.75)$) {\usebeamercolor[fg]{author}A game by \insertauthor};
+	\end{tikzpicture}
+	
+%	\hypersetup{urlcolor=ucolor}
+
+}
+
+% sectionpage
+\AtBeginSection[]  {
+	\setbeamercolor*{palette primary}{fg=secfgcolor,bg=secbgcolor}
+	\usebeamercolor[fg]{palette primary}
+	\setbeamertemplate{background canvas}[default]
+	\setbeamercolor*{palette secondary}{use=palette tertiary,fg=palette tertiary.fg!30!palette tertiary.bg}
+	\begin{frame}[label={sec:\thesection}]
+%			\sectionpage
+	\usebeamertemplate{bar-secpage}
+%		\else
+%			\tableofcontents[currentsection,subsectionstyle=hide/hide/hide]
+%		\fi
+	\end{frame}
+
+	\setbeamercolor*{palette primary}{fg=slidefgcolor,bg=slidebgcolor}
+	\usebeamercolor[fg]{palette primary}
+	\setbeamercolor*{palette secondary}{use=palette tertiary,fg=palette tertiary.bg}
+	\setbeamertemplate{background canvas}[focs-bck]
+}
+
+
+
+% total number of sections %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{totcount}
+\newcounter{totalsection}
+\regtotcounter{totalsection}
+\newcounter{totsection}
+
+\AtBeginDocument{%
+  \pretocmd{\section}{\refstepcounter{totalsection}}{}{}%
+}%
+
+
+
+\newcommand{\mindtoc}{%
+
+	\setcounter{totsection}{\number\totvalue{totalsection}}
+	\pgfmathsetmacro\sangle{360-(360/(2*\thetotsection))}
+
+	\setbeamercolor*{palette primary}{bg=slidebgcolor}
+	\begin{frame}[label={toc}]
+		\center
+		\begin{tikzpicture}[small mindmap, draw=none]
+
+			\tikzset{
+				grow cyclic,
+				concept color=black!90, 
+				text=white,
+				root concept/.append style={
+					concept color=black!90,
+					fill=white, line width=1ex,
+					text=black, font=\large},
+				every node/.style={
+					concept, circular drop shadow,execute at begin node=\hskip0pt,
+				},
+				level 1/.append style={%
+					sibling angle=360/\thetotsection,
+					level distance = 32mm,
+					text=white,
+					every child/.append style={concept color=tocbgcolor},
+					font=\scriptsize,
+					clockwise from=90-\sangle,
+				},
+			}
+			\node[root concept] {\inserttitle} child%   [clockwise from=90] child 
+				foreach \i in {1,...,\thetotsection}{%
+					node {\hyperlink{sec:\i}{\i. \nameref{sec:\i}}
+					}%
+				}; 
+		\end{tikzpicture}
+	\end{frame}
+}
+
+\tikzset{
+	pics/jumpline/.style args={#1/#2/#3/#4}{code={
+			\node[fill=#4,minimum height=#2pt, minimum width=#1cm,anchor=west] at (0,0) {\hyperlink{sec:#3}{\XeTeXLinkBox{\hspace{#1cm}}}};
+		}
+	}
+}
+
+\setbeamertemplate{bar-secpage}{
+	\setcounter{totsection}{\number\totvalue{totalsection}}
+	\pgfmathsetmacro{\secbar}{10/\thetotsection}
+
+	\begin{center}	
+		\begin{tikzpicture}[inner sep=0,fg]
+			\node[anchor=west,font=\vphantom{Ag}\Large] at (0,.5) {\hyperlink{toc}{\insertsectionnumber.~\insertsection}};
+			\foreach \i in {1,...,\thetotsection} {
+				\path (\i*\secbar-\secbar,0) pic {jumpline=\secbar/2/\i/bg!60};
+				\ifnum \i > \thesection\relax
+			\else
+				\path (\i*\secbar-\secbar,0) pic {jumpline=\secbar/1/\i/fg};
+			\fi 
+		}
+	\end{tikzpicture}
+\end{center}
+}
+
+\defbeamertemplate{background canvas}{focs-bck}{
+	\begin{pgfpicture}{0cm}{0cm}{\paperwidth}{\paperheight}
+		\color{bg}
+		\pgfpathrectangle{\pgfpointorigin}{\pgfpoint{\paperwidth}{\paperheight}}
+		\pgfusepath{fill}
+		\pgftext[at=\pgfpoint{.5\paperwidth}{.46\paperheight}]{\includegraphics[height=.6\textheight]{sf-head}}
+	\end{pgfpicture}
+}
+
+% hide focs logo
+\newcommand*{\nologo}{\setbeamertemplate{background canvas}[default]}
+
+\newcommand*{\thankframe}{
+	\setbeamercolor*{palette primary}{fg=titlefgcolor,bg=titlebgcolor}
+	\usebeamercolor[fg]{palette primary}
+	\setbeamertemplate{background canvas}[default]
+	\begin{frame}
+\begin{tikzpicture}[overlay, remember picture]
+		\node[anchor=south,inner sep=0pt] at ($(current page.center)+(0,.35)$) {\includegraphics[height=.5\textheight,width=.8\textwidth,keepaspectratio]{sf-logo}};
+		\node[minimum width=\paperwidth,fill=silverfocsblue,anchor=south,minimum height=1.5cm,font=\bf\Huge] at ($(current page.center)+(0,-3.5)$) {Thank you!};
+	\end{tikzpicture}
+	\end{frame}
+}
+
+% full img, black bck -- allow specify location on slide
+\newenvironment{framef}[2][center]{
+	\setbeamertemplate{background canvas}[default]
+	\setbeamercolor*{palette primary}{fg=white!80!black,bg=black}
+	\usebeamercolor[fg]{palette primary}
+	\hypersetup{urlcolor=.}
+	\begin{frame}[environment=framef,plain]
+		\tikz[remember picture,overlay]	\node[black,inner sep=0,anchor=#1] at (current page.#1) {\includegraphics[height=\paperheight,width=\paperwidth,keepaspectratio]{#2}};
+%		\begin{columns}\column{\paperwidth}\includegraphics[height=\paperheight,width=\paperwidth,keepaspectratio]{#2}\end{columns}
+}{
+	\end{frame}
+}
+
+% frame without focs logo
+\newenvironment{framenl}[1][]{
+	\nologo
+	\begin{frame}[environment=framenl,#1]
+  }{
+	\end{frame}
+}
+
+
+% quickly adjust slide colors/background
+\newcommand{\setslidecolor}[2][]{
+	\ifx#1\empty\relax
+	\else
+		\setbeamercolor*{palette tertiary}{#1}
+		\setbeamertemplate{frametitle}[ftitle]
+	\fi 
+	\setbeamercolor*{palette primary}{#2}
+	\usebeamercolor*{palette primary}
+	\setbeamertemplate{background canvas}[focs-bck]
+}
+
+\newcommand{\resetslidecolor}{
+	\setbeamercolor*{palette tertiary}{fg=structfgcolor,bg=structbgcolor}
+	\setbeamercolor*{palette primary}{fg=slidefgcolor,bg=slidebgcolor}
+	\usebeamercolor[fg]{palette primary}
+	\setbeamertemplate{background canvas}[focs-bck]
+% reset bg layer, eg. pic was added
+	\setbeamertemplate{background}{}
+}
+
+\endinput
